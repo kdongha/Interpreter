@@ -625,6 +625,19 @@ def run_func(op_code_node):
         quote_list.next = new_value_list
         return wrapper_new_list
 
+    def insertTable(self, id, value):
+        if value.type is TokenType.LIST:
+            if value.value.type is TokenType.QUOTE:
+                defTable[id] = value
+            else:
+                value = run_expr(value)
+                defTable[id] = value;
+        elif value.type is TokenType.LAMBDA:
+            defTable[id] = value
+        else:
+            defTable[id] = value
+
+
     table = {}
     table['cons'] = cons
     table["'"] = quote

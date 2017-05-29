@@ -637,6 +637,9 @@ def run_func(op_code_node):
         else:
             defTable[id] = value
 
+    def lookupTable(self, id):
+        return defTable[id]
+
 
     table = {}
     table['cons'] = cons

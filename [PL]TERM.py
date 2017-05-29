@@ -626,16 +626,9 @@ def run_func(op_code_node):
         return wrapper_new_list
 
     def insertTable(self, id, value):
-        if value.type is TokenType.LIST:
-            if value.value.type is TokenType.QUOTE:
-                defTable[id] = value
-            else:
+        if value.type is TokenType.LIST and value.value.type is not TokenType.QUOTE:
                 value = run_expr(value)
-                defTable[id] = value;
-        elif value.type is TokenType.LAMBDA:
-            defTable[id] = value
-        else:
-            defTable[id] = value
+        defTable[id] = value
 
     def lookupTable(self, id):
         return defTable[id]

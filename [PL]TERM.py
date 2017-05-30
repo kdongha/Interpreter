@@ -282,6 +282,7 @@ class Node(object):
 
 
 class BasicPaser(object):
+
     def __init__(self, token_list):
         """
         :type token_list:list
@@ -455,7 +456,7 @@ def run_func(op_code_node):
         # Fill Out
         if node.value.type is TokenType.LIST:
             checkCond = run_expr(node.value)
-        elif node.value.type in CuteType.BOOLEAN_LIST :
+        elif node.value.type in CuteType.BOOLEAN_LIST:
             checkCond = node.value
         else:
             print "Error"
@@ -489,6 +490,14 @@ def run_func(op_code_node):
         r_node = l_node.next
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
+
+        if new_l_node.type is TokenType.ID:
+            if lookupTable(new_l_node.value) is not None:
+                new_l_node = lookupTable(new_l_node.value);
+        if new_r_node.type is TokenType.ID:
+            if lookupTable(new_r_node.value) is not None:
+                new_r_node = lookupTable(new_r_node.value);
+
         if new_l_node is None or new_r_node is None:
             print "Error!"
             return None
@@ -503,6 +512,13 @@ def run_func(op_code_node):
         r_node = l_node.next
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
+
+        if new_l_node.type is TokenType.ID:
+            if lookupTable(new_l_node.value) is not None:
+                new_l_node = lookupTable(new_l_node.value);
+        if new_r_node.type is TokenType.ID:
+            if lookupTable(new_r_node.value) is not None:
+                new_r_node = lookupTable(new_r_node.value);
 
         if new_l_node is None or new_r_node is None:
             print "Error!"
@@ -519,6 +535,13 @@ def run_func(op_code_node):
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
 
+        if new_l_node.type is TokenType.ID:
+            if lookupTable(new_l_node.value) is not None:
+                new_l_node = lookupTable(new_l_node.value);
+        if new_r_node.type is TokenType.ID:
+            if lookupTable(new_r_node.value) is not None:
+                new_r_node = lookupTable(new_r_node.value);
+
         if new_l_node is None or new_r_node is None:
             print "Error!"
             return None
@@ -533,6 +556,13 @@ def run_func(op_code_node):
         r_node = l_node.next
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
+
+        if new_l_node.type is TokenType.ID:
+            if lookupTable(new_l_node.value) is not None:
+                new_l_node = lookupTable(new_l_node.value);
+        if new_r_node.type is TokenType.ID:
+            if lookupTable(new_r_node.value) is not None:
+                new_r_node = lookupTable(new_r_node.value);
 
         if new_l_node is None or new_r_node is None:
             print "Error!"
@@ -603,8 +633,8 @@ def run_func(op_code_node):
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
 
-        defTable[new_l_node.value] = new_r_node
-        return None
+        insertTable(new_l_node.value, new_r_node)
+        return new_r_node;
 
     def create_new_quote_list(value_node, list_flag=False):
         """
@@ -624,14 +654,6 @@ def run_func(op_code_node):
         new_value_list = Node(TokenType.LIST, value_node)
         quote_list.next = new_value_list
         return wrapper_new_list
-
-    def insertTable(self, id, value):
-        if value.type is TokenType.LIST and value.value.type is not TokenType.QUOTE:
-                value = run_expr(value)
-        defTable[id] = value
-
-    def lookupTable(self, id):
-        return defTable[id]
 
 
     table = {}
@@ -677,6 +699,22 @@ def run_expr(root_node):
     else:
         print 'Run Expr Error'
     return None
+
+"""
+Term 파일에는 CuteIntpreter class 로 묶여 있지 않음
+모든 함수가 전역으로 되어 있음 그래서 defTable도 전역으로 임시로 이 주석 밑에 붙임
+"""
+
+defTable = {}
+
+def insertTable(id, value):
+    if value.type is TokenType.LIST and value.value.type is not TokenType.QUOTE:
+        value = run_expr(value)
+
+    defTable[id] = value
+
+def lookupTable(id):
+    return defTable[id]
 
 
 def print_node(node):
@@ -759,6 +797,7 @@ def run_method(input):
     cute_inter = run_expr(node)
     print '... ' + str(print_node(cute_inter))
 
-while(1):
+
+while (1):
     cmd = raw_input("$ ")
     run_method(cmd)

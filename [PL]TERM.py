@@ -387,12 +387,25 @@ def run_func(op_code_node):
         new_l_node = l_node
         new_r_node = strip_quote(new_r_node)
         new_l_node = strip_quote(new_l_node)
+
+        if new_l_node is TokenType.ID:
+            if lookupTable(new_l_node.vale) != None:
+                new_l_node = lookupTable(new_l_node.vale)
+        if new_r_node is TokenType.ID:
+            if lookupTable(new_r_node.vale) != None:
+                new_r_node = lookupTable(new_r_node.vale)
+
         new_l_node.next = new_r_node.value
 
         return create_new_quote_list(new_l_node, True)
 
     def car(node):
         l_node = run_expr(node.value.next)
+
+        if l_node.type is TokenType.ID:
+            if lookupTable(l_node.value) is not None:
+                l_node = lookupTable(l_node.value);
+
         result = strip_quote(l_node).value
         if result.type is not TokenType.LIST:
             return result
@@ -655,8 +668,7 @@ def run_func(op_code_node):
         quote_list.next = new_value_list
         return wrapper_new_list
 
-
-    table = {}
+    table={}
     table['cons'] = cons
     table["'"] = quote
     table['quote'] = quote
@@ -677,16 +689,41 @@ def run_func(op_code_node):
     table['define'] = define
 
     return table[op_code_node.value]
+"""
+    table = {}
+    table[TokenType.CONS] = cons
+    table[TokenType.QUOTE] = quote
+    table[TokenType.CDR] = cdr
+    table[TokenType.CAR] = car
+    table[TokenType.EQ_Q] = eq_q
+    table[TokenType.NULL_Q] = null_q
+    table[TokenType.ATOM_Q] = atom_q
+    table[TokenType.NOT] = not_op
+    table[TokenType.PLUS] = plus
+    table[TokenType.MINUS] = minus
+    table[TokenType.TIMES]= multiple
+    table[TokenType.DIV] = divide
+    table[TokenType.LT] = lt
+    table[TokenType.GT] = gt
+    table[TokenType.EQ] = eq
+    table[TokenType.COND] = cond
+    table[TokenType.DEFINE] = define
+
+
+    return table[op_code_node.type]
+"""
 
 
 def run_expr(root_node):
     """
-    :type root_node : Node
+        :type root_node : Node
     """
     if root_node is None:
         return None
 
     if root_node.type is TokenType.ID:
+        if lookupTable(root_node.value) != None:
+            return lookupTable(root_node.value)
         return root_node
     elif root_node.type is TokenType.INT:
         return root_node
@@ -708,13 +745,15 @@ Term 파일에는 CuteIntpreter class 로 묶여 있지 않음
 defTable = {}
 
 def insertTable(id, value):
-    if value.type is TokenType.LIST and value.value.type is not TokenType.QUOTE:
-        value = run_expr(value)
+    """if value.type is TokenType.LIST and value.value.type is not TokenType.QUOTE:
+        value = run_expr(value)"""
 
     defTable[id] = value
 
 def lookupTable(id):
-    return defTable[id]
+    if id in defTable:
+        return defTable[id]
+    return None
 
 
 def print_node(node):

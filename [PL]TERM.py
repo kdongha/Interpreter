@@ -643,8 +643,8 @@ def run_func(op_code_node):
     def define(node):
         l_node = node.value.next
         r_node = l_node.next
-        new_l_node = strip_quote(run_expr(l_node))
-        new_r_node = strip_quote(run_expr(r_node))
+        new_l_node = run_expr(l_node)
+        new_r_node = run_expr(r_node)
 
         insertTable(new_l_node.value, new_r_node)
         return new_r_node;

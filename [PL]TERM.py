@@ -359,7 +359,6 @@ def run_func(op_code_node):
     """
     :type op_code_node:Node/
     """
-    defTable = {}
 
     def quote(node):
         return node
@@ -649,11 +648,47 @@ def run_func(op_code_node):
     def define(node):
         l_node = node.value.next
         r_node = l_node.next
-        new_l_node = run_expr(l_node)
-        new_r_node = run_expr(r_node)
 
-        insertTable(new_l_node.value, new_r_node)
-        return new_r_node;
+        if r_node.type is TokenType.LIST:
+            if r_node.value.type is TokenType.LAMBDA:
+                insertTable(l_node.value,r_node.value)
+                return r_node
+        else:
+            new_r_node = run_expr(r_node)
+            insertTable(l_node.value, new_r_node)
+            return new_r_node
+
+    def Lambda(node):
+        variable_node = node.value.next
+        formula_node = variable_node.next
+        value_node=formula_node.next
+        if value_node is None:
+            return node
+        else:
+            variable=variable_node.value
+            value=value_node.value
+            saveTable={}
+            while(variable is not None and value is not None):
+                if lookupTable(variable.value) is not None:
+                    saveTable[variable.value]=lookupTable(variable.value)
+                if value.type is TokenType.LIST:
+                    new_value=run_expr(value)
+                    insertTable(variable.value, new_value)
+                else:
+                    insertTable(variable.value,value)
+                variable=variable.next
+                value=value.next
+            formula_node.next=None
+            result=run_expr(formula_node)
+            variable = variable_node.value
+            while(variable is not None):
+                if variable.value in saveTable.keys():
+                    insertTable(variable.value,saveTable[variable.value])
+                    del saveTable[variable.value]
+                else:
+                    del defTable[variable.value]
+                variable=variable.next
+            return result
 
     """ lambda 이미 예약된 단어라서 이름 f 붙임"""
     def lambda_f(node):
@@ -699,7 +734,7 @@ def run_func(op_code_node):
     table['='] = eq
     table['cond'] = cond
     table['define'] = define
-    table['lambda'] = lambda_f
+    table['lambda'] = Lambda
 
     return table[op_code_node.value]
 """

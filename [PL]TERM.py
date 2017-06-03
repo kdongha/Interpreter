@@ -651,7 +651,10 @@ def run_func(op_code_node):
 
         if r_node.type is TokenType.LIST:
             if r_node.value.type is TokenType.LAMBDA:
-                insertTable(l_node.value,r_node.value)
+                insertTable(l_node.value, r_node.value)
+                return r_node
+            else:
+                insertTable(l_node.value, r_node)
                 return r_node
             else:
                 insertTable(l_node.value,r_node)

@@ -506,13 +506,9 @@ def run_func(op_code_node):
         if new_l_node.type is TokenType.ID:
             if lookupTable(new_l_node.value) is not None:
                 new_l_node = lookupTable(new_l_node.value)
-            elif node.next is not None:
-                new_l_node=node.next
         if new_r_node.type is TokenType.ID:
             if lookupTable(new_r_node.value) is not None:
                 new_r_node = lookupTable(new_r_node.value)
-            elif node.next is not None:
-                new_r_node=node.next
 
         if new_l_node is None or new_r_node is None:
             print "Error!"
@@ -657,10 +653,36 @@ def run_func(op_code_node):
             return new_r_node
 
     def Lambda(node):
-        l_node = node.value.next
-        r_node = l_node.next
-        r_node.next=run_expr(r_node.next)
-        return run_expr(r_node)
+        variable_node = node.value.next
+        formula_node = variable_node.next
+        value_node=formula_node.next
+        if value_node is None:
+            return node
+        else:
+            variable=variable_node.value
+            value=value_node.value
+            saveTable={}
+            while(variable is not None and value is not None):
+                if lookupTable(variable) is not None:
+                    saveTable[variable]=lookupTable(variable)
+                if value.type is TokenType.LIST:
+                    new_value=run_expr(value)
+                    insertTable(variable.value, new_value)
+                else:
+                    insertTable(variable.value,value)
+                variable=variable.next
+                value=value.next
+            formula_node.next=None
+            result=run_expr(formula_node)
+            variable = variable_node.value
+            while(variable is not None):
+                if variable.value in saveTable.keys():
+                    insertTable(variable.value,saveTable[variable.value])
+                    del saveTable[variable.value]
+                else:
+                    del defTable[variable.value]
+                variable=variable.next
+            return result
 
     def create_new_quote_list(value_node, list_flag=False):
         """

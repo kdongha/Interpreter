@@ -359,7 +359,6 @@ def run_func(op_code_node):
     """
     :type op_code_node:Node/
     """
-    defTable = {}
 
     def quote(node):
         return node
@@ -506,10 +505,14 @@ def run_func(op_code_node):
 
         if new_l_node.type is TokenType.ID:
             if lookupTable(new_l_node.value) is not None:
-                new_l_node = lookupTable(new_l_node.value);
+                new_l_node = lookupTable(new_l_node.value)
+            elif node.next is not None:
+                new_l_node=node.next
         if new_r_node.type is TokenType.ID:
             if lookupTable(new_r_node.value) is not None:
-                new_r_node = lookupTable(new_r_node.value);
+                new_r_node = lookupTable(new_r_node.value)
+            elif node.next is not None:
+                new_r_node=node.next
 
         if new_l_node is None or new_r_node is None:
             print "Error!"
@@ -643,11 +646,21 @@ def run_func(op_code_node):
     def define(node):
         l_node = node.value.next
         r_node = l_node.next
-        new_l_node = run_expr(l_node)
-        new_r_node = run_expr(r_node)
 
-        insertTable(new_l_node.value, new_r_node)
-        return new_r_node;
+        if r_node.type is TokenType.LIST:
+            if r_node.value.type is TokenType.LAMBDA:
+                insertTable(l_node.value,r_node.value)
+                return r_node
+        else:
+            new_r_node = run_expr(r_node)
+            insertTable(l_node.value, new_r_node)
+            return new_r_node
+
+    def Lambda(node):
+        l_node = node.value.next
+        r_node = l_node.next
+        r_node.next=run_expr(r_node.next)
+        return run_expr(r_node)
 
     def create_new_quote_list(value_node, list_flag=False):
         """
@@ -687,6 +700,7 @@ def run_func(op_code_node):
     table['='] = eq
     table['cond'] = cond
     table['define'] = define
+    table['lambda'] = Lambda
 
     return table[op_code_node.value]
 """

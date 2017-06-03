@@ -663,8 +663,8 @@ def run_func(op_code_node):
             value=value_node.value
             saveTable={}
             while(variable is not None and value is not None):
-                if lookupTable(variable) is not None:
-                    saveTable[variable]=lookupTable(variable)
+                if lookupTable(variable.value) is not None:
+                    saveTable[variable.value]=lookupTable(variable.value)
                 if value.type is TokenType.LIST:
                     new_value=run_expr(value)
                     insertTable(variable.value, new_value)

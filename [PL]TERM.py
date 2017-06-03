@@ -351,8 +351,32 @@ def run_list(root_node):
     :type root_node: Node
     """
     op_code_node = root_node.value
-
-    return run_func(op_code_node)(root_node)
+    if op_code_node.type is TokenType.LIST and op_code_node.value.type is TokenType.LAMBDA:
+        new_root_node=op_code_node
+        new_op_code_node=new_root_node.value
+        variable_node=new_root_node.value.next.value
+        value_node=root_node.value.next
+        saveTable={}
+        while variable_node is not None and value_node is not None:
+            if lookupTable(variable_node) is not None:
+                saveTable[variable_node.value]=value_node
+            value=run_expr(value_node)
+            insertTable(variable_node.value,value)
+            variable_node=variable_node.next
+            value_node=value_node.next
+        result=run_func(new_op_code_node)(new_root_node)
+        variable_node=new_root_node.value.next.value
+        value_node=root_node.value.next
+        while variable_node is not None and value_node is not None:
+            if variable_node in saveTable:
+                insertTable(variable_node.value,saveTable[variable_node.value])
+            else:
+                del defTable[variable_node.value]
+            variable_node=variable_node.next
+            value_node=value_node.next
+        return result
+    else:
+        return run_func(op_code_node)(root_node)
 
 
 def run_func(op_code_node):
@@ -654,9 +678,6 @@ def run_func(op_code_node):
                 insertTable(l_node.value, r_node.value)
                 return r_node
             else:
-                insertTable(l_node.value, r_node)
-                return r_node
-            else:
                 insertTable(l_node.value,r_node)
                 return r_node
         else:
@@ -665,42 +686,10 @@ def run_func(op_code_node):
             return new_r_node
 
     def Lambda(node):
-        variable_node = node.value.next
-        formula_node = variable_node.next
-        value_node=formula_node.next
-        if value_node is None:
-            return node
-        else:
-            variable=variable_node.value
-            value=value_node.value
-            saveTable={}
-            while(variable is not None and value is not None):
-                if lookupTable(variable.value) is not None:
-                    saveTable[variable.value]=lookupTable(variable.value)
-                if value.type is TokenType.LIST:
-                    new_value=run_expr(value)
-                    insertTable(variable.value, new_value)
-                else:
-                    insertTable(variable.value,value)
-                variable=variable.next
-                value=value.next
-            formula_node.next=None
-            result=run_expr(formula_node)
-            variable = variable_node.value
-            while(variable is not None):
-                if variable.value in saveTable.keys():
-                    insertTable(variable.value,saveTable[variable.value])
-                    del saveTable[variable.value]
-                else:
-                    del defTable[variable.value]
-                variable=variable.next
-            return result
+        l_node = node.value.next
+        r_node = l_node.next
 
-    """ lambda 이미 예약된 단어라서 이름 f 붙임"""
-    def lambda_f(node):
-        if node.value.next.next is None: # 람다식의 인자가 없다면
-            return node
-
+        return run_list(r_node)
 
     def create_new_quote_list(value_node, list_flag=False):
         """

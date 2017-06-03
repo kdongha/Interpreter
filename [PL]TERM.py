@@ -643,7 +643,6 @@ def run_func(op_code_node):
         l_node = node.value.next
         r_node = l_node.next
 
-
         if r_node.type is TokenType.LIST:
             if r_node.value.type is TokenType.LAMBDA:
                 insertTable(l_node.value,r_node.value)

@@ -387,6 +387,12 @@ def run_func(op_code_node):
         new_r_node = strip_quote(new_r_node)
         new_l_node = strip_quote(new_l_node)
 
+        if lookupTable(new_l_node.value) is not None:
+                new_l_node = lookupTable(new_l_node.value)
+        if new_r_node.type is TokenType.ID:
+            if lookupTable(new_r_node.value) is not None:
+                new_r_node = lookupTable(new_r_node.value)
+
         if new_l_node is TokenType.ID:
             if lookupTable(new_l_node.vale) != None:
                 new_l_node = lookupTable(new_l_node.vale)
@@ -403,7 +409,7 @@ def run_func(op_code_node):
 
         if l_node.type is TokenType.ID:
             if lookupTable(l_node.value) is not None:
-                l_node = lookupTable(l_node.value);
+                l_node = lookupTable(l_node.value)
 
         result = strip_quote(l_node).value
         if result.type is not TokenType.LIST:
@@ -527,10 +533,10 @@ def run_func(op_code_node):
 
         if new_l_node.type is TokenType.ID:
             if lookupTable(new_l_node.value) is not None:
-                new_l_node = lookupTable(new_l_node.value);
+                new_l_node = lookupTable(new_l_node.value)
         if new_r_node.type is TokenType.ID:
             if lookupTable(new_r_node.value) is not None:
-                new_r_node = lookupTable(new_r_node.value);
+                new_r_node = lookupTable(new_r_node.value)
 
         if new_l_node is None or new_r_node is None:
             print "Error!"
@@ -549,10 +555,10 @@ def run_func(op_code_node):
 
         if new_l_node.type is TokenType.ID:
             if lookupTable(new_l_node.value) is not None:
-                new_l_node = lookupTable(new_l_node.value);
+                new_l_node = lookupTable(new_l_node.value)
         if new_r_node.type is TokenType.ID:
             if lookupTable(new_r_node.value) is not None:
-                new_r_node = lookupTable(new_r_node.value);
+                new_r_node = lookupTable(new_r_node.value)
 
         if new_l_node is None or new_r_node is None:
             print "Error!"
@@ -571,10 +577,10 @@ def run_func(op_code_node):
 
         if new_l_node.type is TokenType.ID:
             if lookupTable(new_l_node.value) is not None:
-                new_l_node = lookupTable(new_l_node.value);
+                new_l_node = lookupTable(new_l_node.value)
         if new_r_node.type is TokenType.ID:
             if lookupTable(new_r_node.value) is not None:
-                new_r_node = lookupTable(new_r_node.value);
+                new_r_node = lookupTable(new_r_node.value)
 
         if new_l_node is None or new_r_node is None:
             print "Error!"
@@ -686,6 +692,12 @@ def run_func(op_code_node):
                     del defTable[variable.value]
                 variable=variable.next
             return result
+
+    """ lambda 이미 예약된 단어라서 이름 f 붙임"""
+    def lambda_f(node):
+        if node.value.next.next is None: # 람다식의 인자가 없다면
+            return node
+
 
     def create_new_quote_list(value_node, list_flag=False):
         """

@@ -358,7 +358,7 @@ def run_list(root_node):
         value_node=root_node.value.next
         saveTable={}
         while variable_node is not None and value_node is not None:
-            if lookupTable(variable_node) is not None:
+            if lookupTable(variable_node.value) is not None:
                 saveTable[variable_node.value]=value_node
             value=run_expr(value_node)
             insertTable(variable_node.value,value)
@@ -368,7 +368,7 @@ def run_list(root_node):
         variable_node=new_root_node.value.next.value
         value_node=root_node.value.next
         while variable_node is not None and value_node is not None:
-            if variable_node in saveTable:
+            if variable_node.value in saveTable:
                 insertTable(variable_node.value,saveTable[variable_node.value])
             else:
                 del defTable[variable_node.value]
@@ -675,7 +675,7 @@ def run_func(op_code_node):
 
         if r_node.type is TokenType.LIST and r_node.value.type is TokenType.LAMBDA:
             insertTable(l_node.value, r_node.value)
-            return r_node
+            return r_node.value
         else:
             new_r_node = run_expr(r_node)
             insertTable(l_node.value, new_r_node)
@@ -686,6 +686,24 @@ def run_func(op_code_node):
         r_node = l_node.next
 
         return run_list(r_node)
+
+    def func(node):
+        if node.value.value in defTable:
+            l_node=node.value
+            r_node=l_node.next
+            if l_node.value in defTable:
+                l_node=lookupTable(l_node.value)
+            if r_node.value in defTable:
+                r_node=lookupTable(r_node.value)
+            list_node=Node(TokenType.LIST)
+            list_node.value=l_node
+            list_node.next=r_node
+            new_list_node=Node(TokenType.LIST)
+            new_list_node.value=list_node
+            return run_list(new_list_node)
+        else:
+            print "Error!"
+            return None
 
     def create_new_quote_list(value_node, list_flag=False):
         """
@@ -726,6 +744,8 @@ def run_func(op_code_node):
     table['cond'] = cond
     table['define'] = define
     table['lambda'] = Lambda
+    if not check_keyword(op_code_node.value) and op_code_node.value not in table:
+        table[op_code_node.value]=func
 
     return table[op_code_node.value]
 """

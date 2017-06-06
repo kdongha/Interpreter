@@ -426,12 +426,6 @@ def run_func(op_code_node):
         new_r_node = strip_quote(new_r_node)
         new_l_node = strip_quote(new_l_node)
 
-        if lookupTable(new_l_node.value) is not None:
-            new_l_node = lookupTable(new_l_node.value)
-        if new_r_node.type is TokenType.ID:
-            if lookupTable(new_r_node.value) is not None:
-                new_r_node = lookupTable(new_r_node.value)
-
         if new_l_node is TokenType.ID:
             if lookupTable(new_l_node.vale) != None:
                 new_l_node = lookupTable(new_l_node.vale)
@@ -445,10 +439,6 @@ def run_func(op_code_node):
 
     def car(node):
         l_node = run_expr(node.value.next)
-
-        if l_node.type is TokenType.ID:
-            if lookupTable(l_node.value) is not None:
-                l_node = lookupTable(l_node.value)
 
         result = strip_quote(l_node).value
         if result.type is not TokenType.LIST:
@@ -548,13 +538,6 @@ def run_func(op_code_node):
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
 
-        if new_l_node.type is TokenType.ID:
-            if lookupTable(new_l_node.value) is not None:
-                new_l_node = lookupTable(new_l_node.value)
-        if new_r_node.type is TokenType.ID:
-            if lookupTable(new_r_node.value) is not None:
-                new_r_node = lookupTable(new_r_node.value)
-
         if new_l_node is None or new_r_node is None:
             print "Error!"
             return None
@@ -569,13 +552,6 @@ def run_func(op_code_node):
         r_node = l_node.next
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
-
-        if new_l_node.type is TokenType.ID:
-            if lookupTable(new_l_node.value) is not None:
-                new_l_node = lookupTable(new_l_node.value)
-        if new_r_node.type is TokenType.ID:
-            if lookupTable(new_r_node.value) is not None:
-                new_r_node = lookupTable(new_r_node.value)
 
         if new_l_node is None or new_r_node is None:
             print "Error!"
@@ -592,13 +568,6 @@ def run_func(op_code_node):
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
 
-        if new_l_node.type is TokenType.ID:
-            if lookupTable(new_l_node.value) is not None:
-                new_l_node = lookupTable(new_l_node.value)
-        if new_r_node.type is TokenType.ID:
-            if lookupTable(new_r_node.value) is not None:
-                new_r_node = lookupTable(new_r_node.value)
-
         if new_l_node is None or new_r_node is None:
             print "Error!"
             return None
@@ -613,13 +582,6 @@ def run_func(op_code_node):
         r_node = l_node.next
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
-
-        if new_l_node.type is TokenType.ID:
-            if lookupTable(new_l_node.value) is not None:
-                new_l_node = lookupTable(new_l_node.value)
-        if new_r_node.type is TokenType.ID:
-            if lookupTable(new_r_node.value) is not None:
-                new_r_node = lookupTable(new_r_node.value)
 
         if new_l_node is None or new_r_node is None:
             print "Error!"
@@ -770,31 +732,6 @@ def run_func(op_code_node):
     return table[op_code_node.value]
 
 
-"""
-    table = {}
-    table[TokenType.CONS] = cons
-    table[TokenType.QUOTE] = quote
-    table[TokenType.CDR] = cdr
-    table[TokenType.CAR] = car
-    table[TokenType.EQ_Q] = eq_q
-    table[TokenType.NULL_Q] = null_q
-    table[TokenType.ATOM_Q] = atom_q
-    table[TokenType.NOT] = not_op
-    table[TokenType.PLUS] = plus
-    table[TokenType.MINUS] = minus
-    table[TokenType.TIMES]= multiple
-    table[TokenType.DIV] = divide
-    table[TokenType.LT] = lt
-    table[TokenType.GT] = gt
-    table[TokenType.EQ] = eq
-    table[TokenType.COND] = cond
-    table[TokenType.DEFINE] = define
-
-
-    return table[op_code_node.type]
-"""
-
-
 def run_expr(root_node):
     """
         :type root_node : Node
@@ -818,19 +755,11 @@ def run_expr(root_node):
         print 'Run Expr Error'
     return None
 
-
-"""
-Term 파일에는 CuteIntpreter class 로 묶여 있지 않음
-모든 함수가 전역으로 되어 있음 그래서 defTable도 전역으로 임시로 이 주석 밑에 붙임
-"""
-
 defTable = {}
-
 
 def insertTable(id, value):
     """if value.type is TokenType.LIST and value.value.type is not TokenType.QUOTE:
         value = run_expr(value)"""
-
     defTable[id] = value
 
 
@@ -920,6 +849,50 @@ def run_method(input):
     cute_inter = run_expr(node)
     print '... ' + str(print_node(cute_inter))
 
+run_method("(+ (/ 10 2) (- 9 (* 3 1)))")
+run_method("( car ' ( 2 3 4 ) )")
+run_method("( cdr ' ( 2 3 4 ) )")
+run_method("( cons ' ( 2 3 ) ' ( 4 5 6 ) )")
+run_method("( null? ' ( )")
+run_method("( atom? ' a )")
+run_method("( atom? ' ( ) )")
+run_method("( eq? 3 3 )")
+run_method("( eq? ' a ' a )")
+run_method("( car ( cdr ' ( 2 3 4 ) )")
+run_method("( cdr ' ( 3 4 5 ) ) )")
+run_method("( cons ( car ( cdr ' ( 2 3 4 ) ) ) ( cdr ' ( 3 4 5 ) ) )")
+run_method("( + 1 2 )")
+run_method("( - ( + 1 2 ) 4 )")
+run_method("( > 1 5 )")
+run_method("( cond ( ( null? ' ( 1 2 3 ) ) 1 ) ( ( > 100 10 ) 2 ) ( #T 3 ) )")
+run_method("( ( lambda ( x ) ( + x 1 ) ) 2 )")
+
+run_method("( define plus1 ( lambda ( x ) ( + x 1 ) ) )")
+run_method("( plus1 3 )")
+run_method("( define plus2 ( lambda ( x ) ( + ( plus1 x ) 1 ) ) )")
+run_method("( plus2 100 )")
+
+run_method("( define cube ( lambda ( n ) ( define sqrt ( lambda ( n ) ( * n n ) ) ) ( * ( sqrt n ) n ) ) )")
+run_method("( cube 10 )")
+
+run_method("( define lastitem ( lambda ( ls ) ( cond ( ( null? ( cdr ls ) ) ( car ls ) ) ( #T ( lastitem ( cdr ls ) ) ) ) ) )")
+run_method("( lastitem ' ( 1 2 3 4 5 ) )")
+
+run_method("( define a 10 )")
+run_method("( define scope ( lambda ( x ) ( define test1 ( lambda ( x ) ( define test2 ( lambda ( x ) ( + a x ) ) ) ( + ( test2 x ) x ) ) ) ( + ( test1 x ) x ) ) )")
+run_method("( scope 5 )")
+
+run_method("( define fact ( lambda ( x ) ( cond ( ( < x 1 ) 1 ) ( #T ( * ( fact ( - x 1 ) ) x  ) ) ) ) )")
+run_method("( fact 4 )")
+
+run_method("( define length ( lambda ( ls ) ( cond ( ( null? ls ) 0 ) ( #T ( + 1 ( length ( cdr ls ) ) ) ) ) ) )")
+run_method("( length ' ( a b c ) )")
+
+run_method("( define sum ( lambda ( ls ) ( cond ( ( null? ls ) 0 ) ( #T ( + ( car ls ) ( sum ( cdr ls ) ) ) ) ) ) )")
+run_method("( sum ' ( 3 8 6 ) ")
+
+run_method("( define pow5 ( lambda ( x ) ( define sqrt ( lambda ( x ) ( * x x ) ) ) ( define cube ( lambda ( x ) ( * x ( * x x ) ) ) ) ( * ( sqrt x ) ( cube x ) ) ) )")
+run_method("( pow5 2 )")
 
 while (1):
     cmd = raw_input("$ ")

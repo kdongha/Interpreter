@@ -282,7 +282,6 @@ class Node(object):
 
 
 class BasicPaser(object):
-
     def __init__(self, token_list):
         """
         :type token_list:list
@@ -350,33 +349,50 @@ def run_list(root_node):
     """
     :type root_node: Node
     """
+
     op_code_node = root_node.value
     if op_code_node.type is TokenType.LIST and op_code_node.value.type is TokenType.LAMBDA:
-        new_root_node=op_code_node
-        new_op_code_node=new_root_node.value
-        variable_node=new_root_node.value.next.value
-        value_node=root_node.value.next
-        saveTable={}
-        while variable_node is not None and value_node is not None:
-            if lookupTable(variable_node.value) is not None:
-                saveTable[variable_node.value]=value_node
-            value=run_expr(value_node)
-            insertTable(variable_node.value,value)
-            variable_node=variable_node.next
-            value_node=value_node.next
-        result=run_func(new_op_code_node)(new_root_node)
-        variable_node=new_root_node.value.next.value
-        value_node=root_node.value.next
-        while variable_node is not None and value_node is not None:
-            if variable_node.value in saveTable:
-                insertTable(variable_node.value,saveTable[variable_node.value])
-            else:
-                del defTable[variable_node.value]
-            variable_node=variable_node.next
-            value_node=value_node.next
+        new_root_node = op_code_node
+        new_op_code_node = new_root_node.value
+        variable_node = new_root_node.value.next.value
+        value_node = root_node.value.next
+        saveTable = {}
+        if variable_node is not None and value_node is not None:
+            insertValue(saveTable, variable_node, value_node)
+        result = run_func(new_op_code_node)(new_root_node)
+        variable_node = new_root_node.value.next.value
+        value_node = root_node.value.next
+        if variable_node is not None and value_node is not None:
+            removeValue(saveTable, variable_node, value_node)
         return result
     else:
         return run_func(op_code_node)(root_node)
+
+
+def insertValue(saveTable, variable_node, value_node):
+    if lookupTable(variable_node.value) is not None:
+        saveTable[variable_node.value] = lookupTable(variable_node.value)
+    value = run_expr(value_node)
+    insertTable(variable_node.value, value)
+    variable_node = variable_node.next
+    value_node = value_node.next
+    if variable_node is not None and value_node is not None:
+        return insertValue(saveTable, variable_node, value_node);
+    else:
+        return None
+
+
+def removeValue(saveTable, variable_node, value_node):
+    if variable_node.value in saveTable:
+        insertTable(variable_node.value, saveTable[variable_node.value])
+    else:
+        del defTable[variable_node.value]
+    variable_node = variable_node.next
+    value_node = value_node.next
+    if variable_node is not None and value_node is not None:
+        return removeValue(saveTable, variable_node, value_node)
+    else:
+        return None
 
 
 def run_func(op_code_node):
@@ -412,7 +428,7 @@ def run_func(op_code_node):
         new_l_node = strip_quote(new_l_node)
 
         if lookupTable(new_l_node.value) is not None:
-                new_l_node = lookupTable(new_l_node.value)
+            new_l_node = lookupTable(new_l_node.value)
         if new_r_node.type is TokenType.ID:
             if lookupTable(new_r_node.value) is not None:
                 new_r_node = lookupTable(new_r_node.value)
@@ -689,18 +705,15 @@ def run_func(op_code_node):
 
     def func(node):
         if node.value.value in defTable:
-            l_node=node.value
-            r_node=l_node.next
+            l_node = node.value
+            r_node = l_node.next
             if l_node.value in defTable:
-                l_node=lookupTable(l_node.value)
-            if r_node.value in defTable:
-                r_node=lookupTable(r_node.value)
-            list_node=Node(TokenType.LIST)
-            list_node.value=l_node
-            list_node.next=r_node
-            new_list_node=Node(TokenType.LIST)
-            new_list_node.value=list_node
-            return run_list(new_list_node)
+                new_l_node = Node(TokenType.LIST,lookupTable(l_node.value))
+                new_l_node.next=r_node
+            else:
+                new_l_node=l_node
+            list_node = Node(TokenType.LIST,new_l_node)
+            return run_list(list_node)
         else:
             print "Error!"
             return None
@@ -724,7 +737,7 @@ def run_func(op_code_node):
         quote_list.next = new_value_list
         return wrapper_new_list
 
-    table={}
+    table = {}
     table['cons'] = cons
     table["'"] = quote
     table['quote'] = quote
@@ -745,9 +758,11 @@ def run_func(op_code_node):
     table['define'] = define
     table['lambda'] = Lambda
     if not check_keyword(op_code_node.value) and op_code_node.value not in table:
-        table[op_code_node.value]=func
+        table[op_code_node.value] = func
 
     return table[op_code_node.value]
+
+
 """
     table = {}
     table[TokenType.CONS] = cons
@@ -796,6 +811,7 @@ def run_expr(root_node):
         print 'Run Expr Error'
     return None
 
+
 """
 Term 파일에는 CuteIntpreter class 로 묶여 있지 않음
 모든 함수가 전역으로 되어 있음 그래서 defTable도 전역으로 임시로 이 주석 밑에 붙임
@@ -803,11 +819,13 @@ Term 파일에는 CuteIntpreter class 로 묶여 있지 않음
 
 defTable = {}
 
+
 def insertTable(id, value):
     """if value.type is TokenType.LIST and value.value.type is not TokenType.QUOTE:
         value = run_expr(value)"""
 
     defTable[id] = value
+
 
 def lookupTable(id):
     if id in defTable:

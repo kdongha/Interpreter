@@ -701,7 +701,10 @@ def run_func(op_code_node):
         r_node = l_node.next
         if(r_node.value.type is TokenType.DEFINE):
             run_expr(r_node)
-            result=run_expr(r_node.next)
+            l_node.next=r_node.next
+            new_node = Node(TokenType.LIST,node.value)
+            new_node.value.next=l_node
+            result=run_expr(new_node)
             del defTable[r_node.value.next.value]
             return result
         else:

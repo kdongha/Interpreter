@@ -349,7 +349,6 @@ def run_list(root_node):
     """
     :type root_node: Node
     """
-
     op_code_node = root_node.value
     if op_code_node.type is TokenType.LIST and op_code_node.value.type is TokenType.LAMBDA:
         new_root_node = op_code_node
@@ -700,20 +699,25 @@ def run_func(op_code_node):
     def Lambda(node):
         l_node = node.value.next
         r_node = l_node.next
-
-        return run_list(r_node)
+        if(r_node.value.type is TokenType.DEFINE):
+            run_expr(r_node)
+            result=run_expr(r_node.next)
+            del defTable[r_node.value.next.value]
+            return result
+        else:
+            return run_expr(r_node)
 
     def func(node):
         if node.value.value in defTable:
             l_node = node.value
             r_node = l_node.next
             if l_node.value in defTable:
-                new_l_node = Node(TokenType.LIST,lookupTable(l_node.value))
-                new_l_node.next=r_node
+                new_l_node = Node(TokenType.LIST, lookupTable(l_node.value))
+                new_l_node.next = r_node
             else:
-                new_l_node=l_node
-            list_node = Node(TokenType.LIST,new_l_node)
-            return run_list(list_node)
+                new_l_node = l_node
+            list_node = Node(TokenType.LIST, new_l_node)
+            return run_expr(list_node)
         else:
             print "Error!"
             return None

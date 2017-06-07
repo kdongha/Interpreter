@@ -848,7 +848,7 @@ def run_method(input):
     node = test_basic_paser.parse_expr()
     cute_inter = run_expr(node)
     print '... ' + str(print_node(cute_inter))
-
+"""
 run_method("(+ (/ 10 2) (- 9 (* 3 1)))")
 run_method("( car ' ( 2 3 4 ) )")
 run_method("( cdr ' ( 2 3 4 ) )")
@@ -893,7 +893,7 @@ run_method("( sum ' ( 3 8 6 ) ")
 
 run_method("( define pow5 ( lambda ( x ) ( define sqrt ( lambda ( x ) ( * x x ) ) ) ( define cube ( lambda ( x ) ( * x ( * x x ) ) ) ) ( * ( sqrt x ) ( cube x ) ) ) )")
 run_method("( pow5 2 )")
-
+"""
 while (1):
     cmd = raw_input("$ ")
     run_method(cmd)

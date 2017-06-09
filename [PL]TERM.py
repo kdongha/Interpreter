@@ -662,6 +662,7 @@ def run_func(op_code_node):
         l_node = node.value.next
         r_node = l_node.next
         if(r_node.value.type is TokenType.DEFINE):
+            saveValue=None
             if(r_node.value.next.value in defTable):
                 saveValue=lookupTable(r_node.value.next.value)
             run_expr(r_node)

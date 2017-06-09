@@ -670,6 +670,7 @@ def run_func(op_code_node):
             new_node = Node(TokenType.LIST,node.value)
             new_node.value.next=l_node
             result=run_expr(new_node)
+            l_node.next = r_node
             if saveValue is not None:
                 insertTable(r_node.value.next.value,saveValue)
             else:

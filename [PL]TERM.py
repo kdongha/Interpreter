@@ -676,11 +676,8 @@ def run_func(op_code_node):
         if node.value.value in defTable:
             l_node = node.value
             r_node = l_node.next
-            if l_node.value in defTable:
-                new_l_node = Node(TokenType.LIST, lookupTable(l_node.value))
-                new_l_node.next = r_node
-            else:
-                new_l_node = l_node
+            new_l_node = Node(TokenType.LIST, lookupTable(l_node.value))
+            new_l_node.next = r_node
             list_node = Node(TokenType.LIST, new_l_node)
             return run_expr(list_node)
         else:
@@ -726,7 +723,7 @@ def run_func(op_code_node):
     table['cond'] = cond
     table['define'] = define
     table['lambda'] = Lambda
-    if not check_keyword(op_code_node.value) and op_code_node.value not in table:
+    if op_code_node.value not in table:
         table[op_code_node.value] = func
 
     return table[op_code_node.value]
@@ -848,52 +845,7 @@ def run_method(input):
     node = test_basic_paser.parse_expr()
     cute_inter = run_expr(node)
     print '... ' + str(print_node(cute_inter))
-"""
-run_method("(+ (/ 10 2) (- 9 (* 3 1)))")
-run_method("( car ' ( 2 3 4 ) )")
-run_method("( cdr ' ( 2 3 4 ) )")
-run_method("( cons ' ( 2 3 ) ' ( 4 5 6 ) )")
-run_method("( null? ' ( )")
-run_method("( atom? ' a )")
-run_method("( atom? ' ( ) )")
-run_method("( eq? 3 3 )")
-run_method("( eq? ' a ' a )")
-run_method("( car ( cdr ' ( 2 3 4 ) )")
-run_method("( cdr ' ( 3 4 5 ) ) )")
-run_method("( cons ( car ( cdr ' ( 2 3 4 ) ) ) ( cdr ' ( 3 4 5 ) ) )")
-run_method("( + 1 2 )")
-run_method("( - ( + 1 2 ) 4 )")
-run_method("( > 1 5 )")
-run_method("( cond ( ( null? ' ( 1 2 3 ) ) 1 ) ( ( > 100 10 ) 2 ) ( #T 3 ) )")
-run_method("( ( lambda ( x ) ( + x 1 ) ) 2 )")
 
-run_method("( define plus1 ( lambda ( x ) ( + x 1 ) ) )")
-run_method("( plus1 3 )")
-run_method("( define plus2 ( lambda ( x ) ( + ( plus1 x ) 1 ) ) )")
-run_method("( plus2 100 )")
-
-run_method("( define cube ( lambda ( n ) ( define sqrt ( lambda ( n ) ( * n n ) ) ) ( * ( sqrt n ) n ) ) )")
-run_method("( cube 10 )")
-
-run_method("( define lastitem ( lambda ( ls ) ( cond ( ( null? ( cdr ls ) ) ( car ls ) ) ( #T ( lastitem ( cdr ls ) ) ) ) ) )")
-run_method("( lastitem ' ( 1 2 3 4 5 ) )")
-
-run_method("( define a 10 )")
-run_method("( define scope ( lambda ( x ) ( define test1 ( lambda ( x ) ( define test2 ( lambda ( x ) ( + a x ) ) ) ( + ( test2 x ) x ) ) ) ( + ( test1 x ) x ) ) )")
-run_method("( scope 5 )")
-
-run_method("( define fact ( lambda ( x ) ( cond ( ( < x 1 ) 1 ) ( #T ( * ( fact ( - x 1 ) ) x  ) ) ) ) )")
-run_method("( fact 4 )")
-
-run_method("( define length ( lambda ( ls ) ( cond ( ( null? ls ) 0 ) ( #T ( + 1 ( length ( cdr ls ) ) ) ) ) ) )")
-run_method("( length ' ( a b c ) )")
-
-run_method("( define sum ( lambda ( ls ) ( cond ( ( null? ls ) 0 ) ( #T ( + ( car ls ) ( sum ( cdr ls ) ) ) ) ) ) )")
-run_method("( sum ' ( 3 8 6 ) ")
-
-run_method("( define pow5 ( lambda ( x ) ( define sqrt ( lambda ( x ) ( * x x ) ) ) ( define cube ( lambda ( x ) ( * x ( * x x ) ) ) ) ( * ( sqrt x ) ( cube x ) ) ) )")
-run_method("( pow5 2 )")
-"""
 while (1):
     cmd = raw_input("$ ")
     run_method(cmd)
